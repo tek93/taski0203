@@ -1,14 +1,11 @@
 package com.example.reqru2.model;
 
-import com.example.reqru2.dto.InvoiceDto;
 import lombok.Data;
+import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @Entity
@@ -26,6 +23,7 @@ public class User implements Serializable {
     private String name;
     @NotBlank(message = "Username is required")
     @Column(name="username")
+   // @UniqueElements(message = "user with this username exist in DB")
     private String username;
 
     @NotBlank(message = "Password is required")
@@ -40,9 +38,7 @@ public class User implements Serializable {
     private String token;
     @Column(name="stripe_id")
     private String stripeId;
-    @Column(name="invoice_dto_list")
-    @OneToMany(mappedBy="id")
 
-    private List<InvoiceInDb> invoiceInDbs;
+
 
 }

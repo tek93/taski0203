@@ -1,16 +1,12 @@
 package com.example.reqru2.model;
 
-import  java.sql.Timestamp;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
-
-
 import javax.persistence.*;
-
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.sql.Timestamp;
 
 
 
@@ -33,12 +29,12 @@ public class Localization {
 @Min(value = 6, message = "Device id must have min  5 characters")
 
  @Column(name="latitiude")
-        private Long latitiude;
+        private int latitiude;
        @Min(value = 6, message = "Device id must have 6 characters")
 
       @NotNull(message = "Latitiude id is required")
         @Column(name="longitude")
-        private Long longitude;
+        private int longitude;
 
     @CreationTimestamp
     private Timestamp time;

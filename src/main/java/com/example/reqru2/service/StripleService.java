@@ -1,9 +1,9 @@
 package com.example.reqru2.service;
 
 import com.example.reqru2.dto.CustomerDto;
-import com.example.reqru2.model.InvoiceInDb;
+import com.example.reqru2.dto.InvoiceDto;
 import com.example.reqru2.model.User;
-import com.example.reqru2.repository.InvoiceRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
@@ -12,19 +12,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 @Service
 public class StripleService {
     @Autowired
     UserService userService;
-    @Autowired
-    InvoiceRepository invoiceRepository;
+
     @Value("${stripe.apikey}")
     String stripKey;
-
 
 
     private User getUser() {
@@ -39,19 +38,18 @@ public class StripleService {
 
         User user = getUser();
 
+
         Long id = user.getId();
+
 
         Stripe.apiKey = stripKey;
 
         Map<String, Object> params = new HashMap<>();
-        params.put(
-                "description",
-                "Test user"
-        );
+        params.put("description", user.getUsername());
 
         Customer customer = Customer.create(params);
-        System.out.println(customer);
-        CustomerDto customerDto= new CustomerDto();
+
+        CustomerDto customerDto = new CustomerDto();
         customerDto.setId(customer.getId());
         user.setStripeId(customerDto.getId());
         userService.saveUser(user);
@@ -59,10 +57,13 @@ public class StripleService {
 
     }
 
-    public Invoice putInvo(String productName, Integer qty, Integer ua) throws StripeException {
-        User user= getUser();
+    public String putInvo(InvoiceDto invoiceDto) throws StripeException, IOException {
+        String productName = invoiceDto.getProductName();
+        Integer qty = invoiceDto.getQty();
+        Integer ua = invoiceDto.getUa();
+        User user = getUser();
         Stripe.apiKey = stripKey;
-        System.out.println(stripKey);
+
         Map<String, Object> params3 = new HashMap<>();
         params3.put("name", productName);
         params3.put("active", true);
@@ -70,34 +71,61 @@ public class StripleService {
         Product product = Product.create(params3);
 
         Map<String, Object> params1 = new HashMap<>();
+
         params1.put("customer", user.getStripeId());
-        params1.put( "quantity", qty);
-        params1.put(   "unit_amount", ua);
-        params1.put(
-                "currency","pln"
-        );
+        params1.put("quantity", qty);
+        params1.put("unit_amount", ua);
+        params1.put("currency", "pln");
+        params1.put("description", productName);
         InvoiceItem invoiceItem =
                 InvoiceItem.create(params1);
         InvoiceLineItemCollection invoiceLineItemCollection = new InvoiceLineItemCollection();
         invoiceLineItemCollection.setObject(invoiceItem.getObject());
         Invoice invoice = new Invoice();
 
-        System.out.println(  invoice.getLines());
 
         invoice.setCustomer(user.getStripeId());
-        System.out.println(invoice);
+
         Map<String, Object> params2 = new HashMap<>();
         params2.put("customer", user.getStripeId());
         Invoice.create(params2);
-        invoice.getId();
-        InvoiceInDb invoiceInDb = new InvoiceInDb();
-        invoiceInDb.setInvoiceId(invoice.getId());
-        invoiceInDb.setIdCustomer(user.getStripeId());
-        invoiceInDb.setUserId(user.getId());
-        invoiceRepository.save(invoiceInDb);
 
-        return   null;
-
+        return invoice.getId();
     }
+
+    public String getAllInvoiceFromUser() throws StripeException, JsonProcessingException {
+        User user = getUser();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("customer", user.getStripeId());
+        InvoiceCollection invoices = Invoice.list(params);
+        String json1 = invoices.toJson();
+//        System.out.println(json1);
+//
+//
+//        Gson gson = new Gson();
+//        Data data = new Data();
+//
+//        JsonObject body = gson.fromJson(json1, JsonObject.class);
+//        JsonArray results = body.get("data").getAsJsonArray();
+//
+//        JsonObject firstResult = results.get(0).getAsJsonObject();
+//        JsonElement amount = firstResult.get("account_name");
+//        JsonElement amount_due = firstResult.get("amount_due");
+//        JsonElement currency = firstResult.get("currency");
+//        JsonElement customer = firstResult.get("customer");
+//        JsonElement id = firstResult.get("id");
+//
+//        data.setAccountName(amount.getAsString());
+//        data.setCustomer(customer.getAsString());
+//        data.setAmountDue(amount_due.getAsString());
+//        data.setCurrency(currency.getAsString());
+//        data.setId(id.getAsString());
+//        List<Data> dataList = new ArrayList<>();
+//        dataList.add(data);
+
+        return json1;
+    }
+
 
 }

@@ -2,7 +2,6 @@ package com.example.reqru2.controller;
 
 import com.example.reqru2.model.Localization;
 import com.example.reqru2.repository.LocalizationRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

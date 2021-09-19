@@ -1,0 +1,1 @@
+insert into localization (id, device_id, latitiude, longitude, time) values (null,'12345', '123456', '321654', 	'2021-09-16 21:00:51.733')

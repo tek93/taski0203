@@ -1,8 +1,8 @@
 package com.example.reqru2.config;
 
-import com.example.reqru2.service.UserDetailsServiceImpl;
 import com.example.reqru2.jwt.JwtAuthorizationFilter;
 import com.example.reqru2.jwt.JwtTokenProvider;
+import com.example.reqru2.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
